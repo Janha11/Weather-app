@@ -125,7 +125,7 @@ img{
     height: 130px;
     border-radius: 20px;
     color: black;
-    background-color: #fff;
+    background-color:#fff5f5;
     text-align: center;
     padding: 10px 0;
     display: flex;
@@ -171,7 +171,7 @@ img{
     padding: 10px 20px;
     display: flex;
     flex-direction: column;
-    background-color: white;
+    background-color:#fff5f5;
 }
 
 .card2 .card-heading{
