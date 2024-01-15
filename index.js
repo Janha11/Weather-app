@@ -2,12 +2,51 @@ const temp=document.querySelector('#temp')
 const currentLocatin=document.querySelector('#location')
 const condition= document.querySelector('#condition')
 const rain= document.querySelector('#rain')
+const mainIcon =document.querySelector('#main-icon')
+
+
+const hourlyBtn =document.querySelector('.hourly'),
+weekBtn =document.querySelector('.week'),
+celciusBtn=document.querySelector('.celcius'),
+FahrenheitBtn =document.querySelector('.Fahrenheit')
+
+console.log(weekBtn)
 
 
 
-let currentCity=''
 let currentUnit='C'
 let hourlyorWeek='Week'
+let currentCity='Chennai'
+
+const setupEventListeners = (city) => {
+    hourlyBtn.addEventListener('click', () => {
+      hourlyorWeek = 'Hourly';
+      getWeatherData(city, currentUnit, hourlyorWeek);
+    });
+  
+    weekBtn.addEventListener('click', () => {
+      hourlyorWeek = 'Week';
+      getWeatherData(city, currentUnit, hourlyorWeek);
+    });
+  
+    celciusBtn.addEventListener('click', () => {
+      currentUnit = 'C';
+      getWeatherData(city, currentUnit, hourlyorWeek);
+    });
+  
+    FahrenheitBtn.addEventListener('click', () => {
+      currentUnit = 'F';
+      getWeatherData(city, currentUnit, hourlyorWeek);
+    });
+  };
+  
+  // Call the function to set up initial event listeners
+  
+  
+  // Later, if you need to update the event listeners, call the function again
+  // For example, if you want to change behavior based on some condition
+  
+
 
                                                  // Date-time updateSection
 const getDateTime =()=> {
@@ -35,6 +74,7 @@ updateDateTime();
 setInterval(updateDateTime, 60000); 
 
                                     // Date and time section end
+
 let today;
 function getPublicIp() {
     fetch("https://geolocation-db.com/json/", {
@@ -44,6 +84,8 @@ function getPublicIp() {
     .then((data) => {
         currentCity = data.currentCity;
         getWeatherData(data.city,currentUnit,hourlyorWeek)
+        setupEventListeners(data.city);
+
         console.log(data);
       
     })
@@ -67,6 +109,7 @@ function getWeatherData(city, unit, hourlyorWeek) {
     .then((data) => {
         console.log(data);
         today = data.currentConditions;
+
         if (unit == "C") {
             temp.innerText = today.temp;
         } else {
@@ -74,6 +117,8 @@ function getWeatherData(city, unit, hourlyorWeek) {
         }
         currentLocatin.innerText = data.resolvedAddress;
         condition.innerText = today.conditions;
+          // rain.innerText = 'Perx-' + today.precip + '%';
+        mainIcon.src =getIcon(today.icon)
         today2 = data.currentConditions;
    
         const todayData = [
@@ -85,8 +130,11 @@ function getWeatherData(city, unit, hourlyorWeek) {
             { title: "AirQulity", conditions: today2.winddir, level: measureAirQuality(today2.winddir) }
            
         ];
+
         updateCards(todayData);
-        // rain.innerText = 'Perx-' + today.precip + '%';
+        updateWeatherCards(data,unit,hourlyorWeek)
+      
+      
         console.log("Today:", today);
     })
     .catch((error) => {
@@ -141,6 +189,19 @@ function measureUvIndex(uvindex){
  
      return twelveHourFormat;
  }
+ function getIcon(iconDetails) {
+ 
+    const conditions = {
+      "partly-cloudy-day"   : "https://i.ibb.co/PZQXH8V/27.png",
+      "partly-cloudy-night" : "https://i.ibb.co/Kzkk59k/15.png",
+      "rain"                : "https://i.ibb.co/kBd2NTS/39.png",
+      "clear-day"           : "https://i.ibb.co/rb4rrJL/26.png",
+      "clear-night"         : "https://i.ibb.co/1nxNGHL/10.png"
+    };
+
+console.log('workin')
+    return conditions[iconDetails] 
+  }
  
  function updateCards(data) {
      console.log(data);
@@ -156,6 +217,61 @@ function measureUvIndex(uvindex){
      `);
      cardsContainer.innerHTML = cardsHTML.join('');
  }
+
+
+
+function updateWeatherCards(data, unit, hourlyorWeek) {
+    console.log(data);
+    console.log(data.days[0].hours);
+  
+    const date = new Date();
+    const dayOfWeek = date.getDay();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const weatherCard = document.querySelector('#weather-cards');
+    weatherCard.innerHTML = '';
+  
+    if (hourlyorWeek === 'Week') {
+      if (data && data.days && Array.isArray(data.days)) {
+        for (let i = 0; i < Math.min(7, data.days.length); i++) {
+          const day = data.days[i];
+          const dayName = days[(dayOfWeek + i) % 7];
+  
+          const cardHtml = `
+            <div class="card-in">
+              <h2 class="day-name">${dayName}</h2>
+              <div class="card-icon">
+                <img class="img-fluid" src=${getIcon(day.icon)} alt='image'/>
+              </div>
+              <div class="day-temp">
+                <h2 class="h2">${day.temp}</h2>
+                <span>°${unit}</span>
+              </div>
+            </div>
+          `;
+  
+          weatherCard.innerHTML += cardHtml;
+        }
+      }
+    } else {
+      const hourlyCardsHtml = data.days[0].hours.map((hour, index) => {
+        return `
+          <div class="card-in" id=${index}>
+            <h2 class="day-name">${hour.datetime}</h2>
+            <div class="card-icon">
+              <img class="img-fluid" src=${getIcon(hour.icon)} alt='image'/>
+            </div>
+            <div class="day-temp">
+              <h2 class="h2">${hour.temp}</h2>
+              <span>°${unit}</span>
+            </div>
+          </div>
+        `;
+      });
+  
+      weatherCard.innerHTML = hourlyCardsHtml.join('');
+    }
+  }
+  
  
 
 
