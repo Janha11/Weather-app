@@ -11,9 +11,12 @@ body{
     min-height: 100vh;
     min-width: 100px;
     padding: 50px;
-    /* transition: background-image 0.3s ease; */
     background: #5598fb !important;
-    /* background-image: linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.5)); */
+    background-position: center;
+    background-size: cover !important; 
+    transition: background-image 0.3s ease;
+      
+      
 }
 img{
     width: 60%;
@@ -83,7 +86,7 @@ img{
 /*  for the Top options */
 
 .nav{
-    background-color: #fff5f5;
+    background-color:#f3f3f3;
     padding: 20px 40px;
     padding-bottom: 90px;
 }

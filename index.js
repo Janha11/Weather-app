@@ -3,6 +3,7 @@ const currentLocatin=document.querySelector('#location')
 const condition= document.querySelector('#condition')
 const rain= document.querySelector('#rain')
 const mainIcon =document.querySelector('#main-icon')
+ const temp_unit=document.querySelector('.tmp-unit')
 
 
 const hourlyBtn =document.querySelector('.hourly'),
@@ -16,7 +17,7 @@ console.log(weekBtn)
 
 let currentUnit='C'
 let hourlyorWeek='Week'
-let currentCity='Chennai'
+let currentCity=''
 
 const setupEventListeners = (city) => {
     hourlyBtn.addEventListener('click', () => {
@@ -40,11 +41,22 @@ const setupEventListeners = (city) => {
     });
   };
   
-  // Call the function to set up initial event listeners
+  
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchForm = document.getElementById("search");
+    const searchInput = document.getElementById("search_input");
+
+    searchForm.addEventListener("submit", function (event) {
+        event.preventDefault(); 
+        const searchValue = searchInput.value;
+        console.log("Search Value:", searchValue);
+       
+        getWeatherData(searchValue, currentUnit, hourlyorWeek);
+        setupEventListeners(currentCity);
+    });
+});
   
   
-  // Later, if you need to update the event listeners, call the function again
-  // For example, if you want to change behavior based on some condition
   
 
 
@@ -84,8 +96,8 @@ function getPublicIp() {
     .then((data) => {
         currentCity = data.currentCity;
         getWeatherData(data.city,currentUnit,hourlyorWeek)
-        setupEventListeners(data.city);
-
+        setupEventListeners(data.city)
+        
         console.log(data);
       
     })
@@ -133,12 +145,15 @@ function getWeatherData(city, unit, hourlyorWeek) {
 
         updateCards(todayData);
         updateWeatherCards(data,unit,hourlyorWeek)
+        changeBackground(today.icon)
+        
       
       
         console.log("Today:", today);
     })
     .catch((error) => {
         console.error('Error:', error);
+        alert("The City is not in the Your DataBase")
     });
 }
 
@@ -147,7 +162,7 @@ function getWeatherData(city, unit, hourlyorWeek) {
 
 
 function celciusToFahrenheit(temp){
-return((temp*9)/5+32).toFixed(1);
+ return((temp*9)/5+32).toFixed(1);
 }
 
 function measureUvIndex(uvindex){
@@ -178,6 +193,13 @@ function measureUvIndex(uvindex){
      winddir <= 150 ? "Unhealthy for Sensitive Groups" :
      "UnHealthy";
  }
+
+ function convertTo12HourFormat1(timeString) {
+  const [hours, minutes, seconds] = timeString.split(':').map(Number);
+  const period = hours < 12 ? 'AM' : 'PM';
+  const twelveHourFormat = (hours % 12 || 12) + ':' + (minutes < 10 ? '0' + minutes : minutes) + ' ' + period;
+  return twelveHourFormat;
+}
  function convertTo12HourFormat(timeString) {
      const [hour, minute, second] = timeString.split(':').map(Number);
  
@@ -196,14 +218,14 @@ function measureUvIndex(uvindex){
       "partly-cloudy-night" : "https://i.ibb.co/Kzkk59k/15.png",
       "rain"                : "https://i.ibb.co/kBd2NTS/39.png",
       "clear-day"           : "https://i.ibb.co/rb4rrJL/26.png",
-      "clear-night"         : "https://i.ibb.co/1nxNGHL/10.png"
+      "clear-night"         : "https://i.ibb.co/1nxNGHL/10.png",
+      "cloudy"              : "https://i.ibb.co/rb4rrJL/26.png"
     };
 
 console.log('workin')
     return conditions[iconDetails] 
   }
- 
- function updateCards(data) {
+function updateCards(data) {
      console.log(data);
      const cardsContainer = document.getElementById('card');
      const cardsHTML = data.map((item, index) => `
@@ -219,61 +241,72 @@ console.log('workin')
  }
 
 
+ function changeBackground(iconDetails) {
+  const body = document.querySelector("body");
+  const conditions = {
+    "partly-cloudy-day"   : "https://i.ibb.co/qNv7NxZ/pc.webp",
+    "partly-cloudy-night" : "https://i.ibb.co/RDfPqXz/pcn.jpg",
+    "rain"                : "https://i.ibb.co/h2p6Yhd/rain.webp",
+    "clear-day"           : "https://i.ibb.co/WGry01m/cd.jpg",
+    "clear-night"         : "https://i.ibb.co/kqtZ1Gx/cn.jpg"
+  };
+  const defaultbg ='https://i.ibb.co/qNv7NxZ/pc.webp'
+  let bg = conditions[iconDetails] || defaultbg ;
+  
+  body.style.setProperty('background-image', `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${bg})`, 'important');
+}
 
-function updateWeatherCards(data, unit, hourlyorWeek) {
-    console.log(data);
-    console.log(data.days[0].hours);
-  
-    const date = new Date();
-    const dayOfWeek = date.getDay();
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const weatherCard = document.querySelector('#weather-cards');
-    weatherCard.innerHTML = '';
-  
-    if (hourlyorWeek === 'Week') {
-      if (data && data.days && Array.isArray(data.days)) {
-        for (let i = 0; i < Math.min(7, data.days.length); i++) {
-          const day = data.days[i];
-          const dayName = days[(dayOfWeek + i) % 7];
-  
-          const cardHtml = `
-            <div class="card-in">
-              <h2 class="day-name">${dayName}</h2>
-              <div class="card-icon">
-                <img class="img-fluid" src=${getIcon(day.icon)} alt='image'/>
-              </div>
-              <div class="day-temp">
-                <h2 class="h2">${day.temp}</h2>
-                <span>°${unit}</span>
-              </div>
-            </div>
-          `;
-  
-          weatherCard.innerHTML += cardHtml;
-        }
-      }
-    } else {
-      const hourlyCardsHtml = data.days[0].hours.map((hour, index) => {
-        return `
-          <div class="card-in" id=${index}>
-            <h2 class="day-name">${hour.datetime}</h2>
+
+ function updateWeatherCards(data, unit, hourlyorWeek) {
+  console.log(data);
+  console.log(data.days[0].hours);
+
+  const date = new Date();
+  const dayOfWeek = date.getDay();
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const weatherCard = document.querySelector('#weather-cards');
+  weatherCard.innerHTML = '';
+
+  if (hourlyorWeek === 'Week') {
+    if (data && data.days && Array.isArray(data.days)) {
+      for (let i = 0; i < Math.min(7, data.days.length); i++) {
+        const day = data.days[i];
+        const dayName = days[(dayOfWeek + i) % 7];
+
+        const cardHtml = `
+          <div class="card-in">
+            <h2 class="day-name">${dayName}</h2>
             <div class="card-icon">
-              <img class="img-fluid" src=${getIcon(hour.icon)} alt='image'/>
+              <img class="img-fluid" src=${getIcon(day.icon)} alt='image'/>
             </div>
             <div class="day-temp">
-              <h2 class="h2">${hour.temp}</h2>
+              <h2 class="h2">${unit === 'F' ? celciusToFahrenheit(day.temp) : day.temp}</h2>
               <span>°${unit}</span>
             </div>
           </div>
         `;
-      });
-  
-      weatherCard.innerHTML = hourlyCardsHtml.join('');
+
+        weatherCard.innerHTML += cardHtml;
+      }
     }
+  } else {
+    const hourlyCardsHtml = data.days[0].hours.map((hour, index) => {
+      return `
+        <div class="card-in" id=${index}>
+          <h2 class="day-name">${convertTo12HourFormat1(hour.datetime)}</h2>
+          <div class="card-icon">
+            <img class="img-fluid" src=${getIcon(hour.icon)} alt='image'/>
+          </div>
+          <div class="day-temp">
+            <h2 class="h2">${unit === 'F' ? celciusToFahrenheit(hour.temp) : hour.temp}</h2>
+            <span>°${unit}</span>
+          </div>
+        </div>
+      `;
+    });
+
+    weatherCard.innerHTML = hourlyCardsHtml.join('');
   }
-  
- 
-
-
+}
 
 
