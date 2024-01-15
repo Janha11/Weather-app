@@ -26,22 +26,64 @@ async function getWeatherData(city) {
         console.log(data);
 
         today2 = data.currentConditions;
-
-        // Extract today's UV index, visibility, humidity, wind status, and sunrise data
+   
         const todayData = [
-            { title: "UvIndeex", conditions: today2.uvindex, level: "Low" },
-            { title: "Visibility", conditions: today2.visibility, level: "Km/h" },
-            { title: "Humidity", conditions: today2.humidity, level: "04:46" },
-            { title: "WindSpeed", conditions: today2.windspeed, level: "High" },
-            { title: "SunRise", conditions: today2.sunrise, level: "VeryUnHealthy" },
-            { title: "AirQulity", conditions: data.stations.VOCI.quality, level: "VeryUnHealthy" }
+            { title: "UvIndeex", conditions: today2.uvindex, level: measureUvIndex(today2.uvindex) },
+            { title: "Visibility", conditions: today2.visibility, level:measureVisibility(today2.visibility)  },
+            { title: "Humidity", conditions: today2.humidity, level: measureHumidity(today2.humidity) },
+            { title: "WindSpeed", conditions: today2.windspeed, level: "Km/h" },
+            { title: "SunRise", conditions: convertTo12HourFormat(today2.sunrise), level: convertTo12HourFormat(today2.sunset) },
+            { title: "AirQulity", conditions: today2.winddir, level: measureAirQuality(today2.winddir) }
+           
         ];
+        
 
         // Trigger the card update with the extracted data
         updateCards(todayData);
     } catch (error) {
         console.error('Error:', error);
     }
+}
+// function for the level 
+
+function measureUvIndex(uvindex){
+   return uvindex <= 2 && "Low" ||
+    uvindex <= 5 && "Moderate" ||
+    uvindex <= 7 && "High" ||
+    uvindex <= 10 && "Very High" ||
+    "Extreme";
+}
+
+function measureHumidity(humidity){
+    return humidity <= 30 ? "Low" :
+    humidity <= 60 ? "Moderate" :
+    "High";
+}
+function measureVisibility(visibility){
+  return visibility <= 0.3 ? "Dense Fog" :
+    visibility <= 0.16 ? "Moderate Fog" :
+    visibility <= 0.35 ? "Light Fog" :
+    visibility <= 1.13 ? "Very Light Fog" :
+    visibility <= 2.16 ? "Light Mist" :
+    visibility <= 5.4 ? "Very Light Mist" :
+    "Clear Air";
+}
+function measureAirQuality(winddir){
+   return winddir <= 50 ? "Good" :
+    winddir <= 100 ? "Moderate" :
+    winddir <= 150 ? "Unhealthy for Sensitive Groups" :
+    "UnHealthy";
+}
+function convertTo12HourFormat(timeString) {
+    const [hour, minute, second] = timeString.split(':').map(Number);
+
+    
+    const period = hour < 12 ? 'AM' : 'PM';
+
+  
+    const twelveHourFormat = (hour % 12 || 12) + ':' + minute + ' ' + period;
+
+    return twelveHourFormat;
 }
 
 function updateCards(data) {

@@ -83,6 +83,7 @@ img{
 /*  for the Top options */
 
 .nav{
+    background-color: #fff5f5;
     padding: 20px 40px;
     padding-bottom: 90px;
 }
@@ -125,7 +126,7 @@ img{
     height: 130px;
     border-radius: 20px;
     color: black;
-    background-color:#fff5f5;
+    background-color:white;
     text-align: center;
     padding: 10px 0;
     display: flex;
@@ -171,7 +172,7 @@ img{
     padding: 10px 20px;
     display: flex;
     flex-direction: column;
-    background-color:#fff5f5;
+    background-color:white;
 }
 
 .card2 .card-heading{
