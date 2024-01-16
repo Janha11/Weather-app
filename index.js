@@ -39,6 +39,7 @@ const setupEventListeners = (city) => {
       currentUnit = 'F';
       getWeatherData(city, currentUnit, hourlyorWeek);
     });
+
   };
   
   
@@ -52,7 +53,7 @@ const setupEventListeners = (city) => {
         console.log("Search Value:", searchValue);
        
         getWeatherData(searchValue, currentUnit, hourlyorWeek);
-        setupEventListeners(currentCity);
+        setupEventListeners(searchValue);
     });
 });
   

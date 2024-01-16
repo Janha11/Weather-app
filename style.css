@@ -53,6 +53,11 @@ img{
     height: 30px;
    
 } */
+.btn-week:focus,
+        .btn-week:active {
+            color: blue; 
+        }
+
 .temprature #temp{
     font-size: 65px !important;
 }
@@ -84,7 +89,9 @@ img{
 }
 
 /*  for the Top options */
-
+.option .toogle{
+    display: none;
+}
 .nav{
     background-color:#f3f3f3;
     padding: 20px 40px;
@@ -195,3 +202,51 @@ img{
     text-align: start;
 }
  
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 991px){
+
+
+    .higlights .card2{
+        height: 110px;
+        width: 150px;
+    }
+    .card2 .card-heading{
+        font-size: 1rem;
+    }
+    .card2 .content p:first-child {
+        font-size: 20px; 
+    }
+
+    .card2 .content p:last-child {
+        font-size: 12px; 
+    }
+    .card2 .content{
+        margin: 0;
+    }
+
+
+
+    .cards .card-in {
+        width: 75px; /* Reduce the width by 25% */
+        height: 97.5px; /* Reduce the height by 25% */
+    }
+
+    .card-in h2 {
+        font-size: 11.25px; /* Reduce font size by 25% */
+    }
+
+    .card-in .day-temp {
+        font-size: 9px; /* Reduce font size by 25% */
+    }
+}
